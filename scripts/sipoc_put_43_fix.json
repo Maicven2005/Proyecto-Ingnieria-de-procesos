@@ -1,0 +1,15 @@
+{
+  "codigo": "PM.1.2.2",
+  "nombre": "Conformación de comites de evaluación",
+  "tipo": "Misional",
+  "nivel": 2,
+  "responsable": "Maicven Angel Jaimes Muñoz",
+  "estado": "Activo",
+  "version": "1.0",
+  "producto": "Comité de evaluación instalado",
+  "id_padre": 41,
+  "proveedores": "Dirección Regional de Educación",
+  "entradas": "Docentes del padrón",
+  "salidas": "Comité registrado",
+  "clientes": "Docentes evaluados"
+}

@@ -1,0 +1,15 @@
+{
+  "codigo": "PM.1.2",
+  "nombre": "Evaluación del desempeño",
+  "tipo": "Misional",
+  "nivel": 1,
+  "responsable": "Maicven Angel Jaimes Muñoz",
+  "estado": "Activo",
+  "version": "1.0",
+  "producto": "Resolución de resultado, Informe de retroalimentación, Plan de capacitación",
+  "id_padre": 40,
+  "proveedores": "Dirección Regional de Educación",
+  "entradas": "Docentes del padrón",
+  "salidas": "Comité registrado",
+  "clientes": "Docentes evaluados"
+}

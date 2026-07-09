@@ -1,0 +1,1641 @@
+<!-- 
+============================================================================
+ENTREGABLE 2: FRONTEND MULTI-PESTAÑA (index.html)
+SPA Optimizada con Arquitectura Hexagonal y Estilos de Ingeniería del Software
+Soporta CRUD Visual, Mapas de Procesos de Nivel 0-3 e Indicadores en Caliente
+============================================================================
+-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNHEVAL - Suite de Ingeniería de Procesos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --surface-0: #101113;
+            --surface-1: #16181c;
+            --surface-2: #1d2026;
+            --surface-3: #252933;
+            --line-soft: rgba(255, 255, 255, 0.08);
+            --line-strong: rgba(255, 255, 255, 0.14);
+            --text-main: #f4f6f8;
+            --text-muted: #a7afb9;
+            --emerald: #22c55e;
+            --emerald-soft: rgba(34, 197, 94, 0.12);
+            --cyan: #38bdf8;
+            --amber: #f59e0b;
+            --rose: #fb7185;
+            --shadow-soft: 0 12px 34px rgba(0, 0, 0, 0.28);
+            --shadow-tight: 0 8px 18px rgba(0, 0, 0, 0.22);
+        }
+
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #3b414c var(--surface-0);
+        }
+
+        *::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        *::-webkit-scrollbar-track {
+            background: var(--surface-0);
+        }
+
+        *::-webkit-scrollbar-thumb {
+            background: #3b414c;
+            border: 2px solid var(--surface-0);
+            border-radius: 999px;
+        }
+
+        body {
+            background:
+                linear-gradient(180deg, rgba(34, 197, 94, 0.06), rgba(56, 189, 248, 0.025) 34%, transparent 62%),
+                var(--surface-0);
+            color: var(--text-main);
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            letter-spacing: 0;
+        }
+
+        #app {
+            width: min(100%, 1440px);
+        }
+
+        .rounded-2xl,
+        .rounded-xl,
+        .rounded-lg {
+            border-radius: 8px !important;
+        }
+
+        .bg-gray-950 {
+            background-color: var(--surface-0) !important;
+        }
+
+        .bg-gray-900,
+        .bg-gray-850 {
+            background-color: var(--surface-1) !important;
+        }
+
+        .bg-gray-800 {
+            background-color: var(--surface-2) !important;
+        }
+
+        .border-gray-800,
+        .border-gray-700 {
+            border-color: var(--line-soft) !important;
+        }
+
+        .text-gray-400 {
+            color: var(--text-muted) !important;
+        }
+
+        header {
+            border: 1px solid var(--line-soft) !important;
+            background:
+                linear-gradient(135deg, rgba(34, 197, 94, 0.09), rgba(56, 189, 248, 0.045) 46%, rgba(245, 158, 11, 0.035)),
+                var(--surface-1) !important;
+            box-shadow: var(--shadow-soft);
+        }
+
+        header h1,
+        h2,
+        h3,
+        h4,
+        h5 {
+            letter-spacing: 0;
+        }
+
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            background: rgba(16, 17, 19, 0.9) !important;
+            backdrop-filter: blur(14px);
+            border: 1px solid var(--line-soft) !important;
+            box-shadow: 0 10px 26px rgba(0, 0, 0, 0.18);
+        }
+
+        nav button {
+            min-height: 40px;
+            border: 1px solid transparent;
+        }
+
+        nav button:not(.bg-emerald-500) {
+            background: transparent;
+        }
+
+        nav button:hover {
+            background: rgba(255, 255, 255, 0.055);
+            border-color: var(--line-soft);
+        }
+
+        button,
+        input,
+        select,
+        textarea {
+            font: inherit;
+        }
+
+        button {
+            box-shadow: none !important;
+        }
+
+        button:focus-visible,
+        input:focus-visible,
+        select:focus-visible,
+        textarea:focus-visible {
+            outline: 2px solid rgba(56, 189, 248, 0.75);
+            outline-offset: 2px;
+        }
+
+        button.bg-emerald-500,
+        button.bg-blue-500,
+        button.bg-purple-500,
+        button.bg-red-500 {
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            transition: transform 160ms ease, filter 160ms ease, background-color 160ms ease;
+        }
+
+        button.bg-emerald-500:hover,
+        button.bg-blue-500:hover,
+        button.bg-purple-500:hover,
+        button.bg-red-500:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.05);
+        }
+
+        input,
+        select,
+        textarea {
+            background: #111317 !important;
+            border: 1px solid var(--line-soft) !important;
+            color: var(--text-main) !important;
+            transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: #737c89 !important;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: rgba(34, 197, 94, 0.7) !important;
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.14);
+            background: #14171c !important;
+        }
+
+        table {
+            border-collapse: separate;
+            border-spacing: 0;
+            overflow: hidden;
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.045);
+            color: #d7dde5;
+            font-weight: 800;
+        }
+
+        td,
+        th {
+            border-color: var(--line-soft) !important;
+        }
+
+        tbody tr {
+            transition: background-color 140ms ease;
+        }
+
+        tbody tr:hover {
+            background: rgba(255, 255, 255, 0.035);
+        }
+
+        .shadow-xl,
+        .shadow-md {
+            box-shadow: var(--shadow-tight) !important;
+        }
+
+        [class*="border-emerald"],
+        [class*="border-blue"],
+        [class*="border-amber"],
+        [class*="border-purple"],
+        [class*="border-pink"] {
+            border-color: var(--line-soft) !important;
+        }
+
+        [class*="bg-emerald-950"],
+        [class*="bg-blue-950"],
+        [class*="bg-amber-950"],
+        [class*="bg-purple-950"],
+        [class*="bg-pink-950"] {
+            background-color: rgba(255, 255, 255, 0.025) !important;
+        }
+
+        .text-emerald-400 {
+            color: #3ee27b !important;
+        }
+
+        .text-blue-400 {
+            color: #60c7ff !important;
+        }
+
+        .text-amber-400 {
+            color: #f7b84b !important;
+        }
+
+        .text-purple-400 {
+            color: #c4b5fd !important;
+        }
+
+        .text-pink-400,
+        .text-red-400 {
+            color: var(--rose) !important;
+        }
+
+        .font-mono {
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+        }
+
+        .tracking-widest,
+        .tracking-wider,
+        .tracking-tight {
+            letter-spacing: 0 !important;
+        }
+
+        .uppercase {
+            letter-spacing: 0.02em !important;
+        }
+
+        canvas {
+            max-width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            #app {
+                padding: 14px !important;
+            }
+
+            header,
+            nav,
+            .p-6 {
+                padding: 16px !important;
+            }
+
+            nav {
+                top: 0;
+            }
+
+            nav button {
+                min-width: max-content;
+            }
+
+            h1 {
+                font-size: 1.35rem !important;
+            }
+
+            h2 {
+                font-size: 1rem !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen font-sans antialiased">
+
+    <div id="app" class="p-4 md:p-8 max-w-7xl mx-auto">
+        
+        <!-- HEADER INSTITUCIONAL -->
+        <header class="mb-6 bg-gray-900 p-6 rounded-2xl border border-gray-800 shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <div class="flex items-center gap-3">
+                    <div class="bg-emerald-500/10 p-2.5 rounded-xl border border-emerald-500/30">
+                        <i class="fa-solid fa-network-wired text-emerald-400 text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-black text-white tracking-tight">UNHEVAL</h1>
+                        <p class="text-xs font-bold text-emerald-400 uppercase tracking-widest">Ingeniería de Sistemas - Gestión de Procesos</p>
+                    </div>
+                </div>
+                <p class="text-gray-400 text-xs mt-2">Plataforma de Control de Arquitectura Organizacional e Indicadores CEPLAN | Ley N.º 29944</p>
+            </div>
+            <div class="bg-gray-950/60 border border-gray-800 px-5 py-3 rounded-xl flex items-center gap-3">
+                <div class="text-right">
+                    <p class="text-xs text-gray-500 font-medium">Líder Consultor</p>
+                    <p class="text-sm font-bold text-gray-200">Maicven Angel Jaimes Muñoz</p>
+                </div>
+                <i class="fa-solid fa-user-shield text-emerald-500 text-lg"></i>
+            </div>
+        </header>
+
+        <!-- PESTAÑAS DE NAVEGACIÓN -->
+        <nav class="flex border-b border-gray-800 mb-6 bg-gray-900 rounded-xl p-1.5 overflow-x-auto gap-2">
+            <button @click="currentTab = 'mapa'" :class="currentTab === 'mapa' ? 'bg-emerald-500 text-gray-950 font-bold' : 'text-gray-400 hover:text-white'" class="py-2.5 px-4 text-xs uppercase font-bold tracking-wider rounded-lg transition-all whitespace-nowrap flex items-center gap-2">
+                <i class="fa-solid fa-diagram-project"></i> Mapa de Procesos
+            </button>
+            <button @click="currentTab = 'inventario'" :class="currentTab === 'inventario' ? 'bg-emerald-500 text-gray-950 font-bold' : 'text-gray-400 hover:text-white'" class="py-2.5 px-4 text-xs uppercase font-bold tracking-wider rounded-lg transition-all whitespace-nowrap flex items-center gap-2">
+                <i class="fa-solid fa-list-check"></i> Inventario de Procesos
+            </button>
+            <button @click="currentTab = 'sipoc'" :class="currentTab === 'sipoc' ? 'bg-emerald-500 text-gray-950 font-bold' : 'text-gray-400 hover:text-white'" class="py-2.5 px-4 text-xs uppercase font-bold tracking-wider rounded-lg transition-all whitespace-nowrap flex items-center gap-2">
+                <i class="fa-solid fa-layer-group"></i> Caracterización SIPOC
+            </button>
+            <button @click="currentTab = 'indicadores'" :class="currentTab === 'indicadores' ? 'bg-emerald-500 text-gray-950 font-bold' : 'text-gray-400 hover:text-white'" class="py-2.5 px-4 text-xs uppercase font-bold tracking-wider rounded-lg transition-all whitespace-nowrap flex items-center gap-2">
+                <i class="fa-solid fa-chart-line"></i> Inventario de Indicadores
+            </button>
+            <button @click="currentTab = 'relevancia'" :class="currentTab === 'relevancia' ? 'bg-emerald-500 text-gray-950 font-bold' : 'text-gray-400 hover:text-white'" class="py-2.5 px-4 text-xs uppercase font-bold tracking-wider rounded-lg transition-all whitespace-nowrap flex items-center gap-2">
+                <i class="fa-solid fa-scale-balanced"></i> Relevancia y Ponderación
+            </button>
+            <button @click="currentTab = 'avance'" :class="currentTab === 'avance' ? 'bg-emerald-500 text-gray-950 font-bold' : 'text-gray-400 hover:text-white'" class="py-2.5 px-4 text-xs uppercase font-bold tracking-wider rounded-lg transition-all whitespace-nowrap flex items-center gap-2">
+                <i class="fa-solid fa-square-poll-vertical"></i> Ratios Tipo I y II
+            </button>
+            <button @click="currentTab = 'graficos'" :class="currentTab === 'graficos' ? 'bg-emerald-500 text-gray-950 font-bold' : 'text-gray-400 hover:text-white'" class="py-2.5 px-4 text-xs uppercase font-bold tracking-wider rounded-lg transition-all whitespace-nowrap flex items-center gap-2">
+                <i class="fa-solid fa-chart-pie"></i> Gráficos Estadísticos
+            </button>
+            
+        </nav>
+
+        <!-- =================================================================== -->
+        <!-- PESTAÑA 1: MAPA DE PROCESOS VISUAL -->
+        <!-- =================================================================== -->
+        <div v-if="currentTab === 'mapa'" class="space-y-6">
+            <div class="flex justify-between items-center mb-4 bg-gray-900 p-4 rounded-xl border border-gray-800">
+                <h2 class="text-lg font-black text-white">🗺️ MAPA DE PROCESOS EN VIVO</h2>
+                <div class="flex gap-2">
+                    <button @click="cargarTodo" class="bg-blue-500 hover:bg-blue-600 text-white font-bold px-4 py-2 rounded-lg flex items-center gap-2 transition-all">
+                        <i class="fa-solid fa-rotate-right"></i> Recargar
+                    </button>
+                    <button @click="regenerarSemilla" class="bg-purple-500 hover:bg-purple-600 text-white font-bold px-4 py-2 rounded-lg flex items-center gap-2 transition-all">
+                        <i class="fa-solid fa-database"></i> Regenerar Datos
+                    </button>
+                </div>
+            </div>
+            <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl grid grid-cols-12 gap-4">
+                
+                <!-- Columna Izquierda: Proveedores -->
+                <div class="col-span-12 lg:col-span-2 bg-purple-950/20 border border-purple-500/20 rounded-xl p-4 flex flex-col justify-center text-center">
+                    <h3 class="text-xs font-black uppercase text-purple-400 mb-3 tracking-widest"><i class="fa-solid fa-building-columns"></i> Proveedores</h3>
+                    <div class="space-y-2 text-xs font-medium text-gray-400">
+                        <div class="p-2 bg-gray-950 rounded-lg border border-gray-800">Estado Peruano</div>
+                        <div class="p-2 bg-gray-950 rounded-lg border border-gray-800">MINEDU (DRE / UGEL)</div>
+                    </div>
+                </div>
+
+                <!-- Bloques Centrales del Mapa Nivel 0 -->
+                <div class="col-span-12 lg:col-span-8 space-y-4">
+                    <!-- Estratégicos -->
+                    <div class="bg-blue-950/10 border border-blue-500/20 p-4 rounded-xl">
+                        <h4 class="text-xs font-black text-blue-400 uppercase tracking-widest mb-2 text-center">Procesos Estratégicos</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs">
+                            <div v-for="p in filtrarProcesos('Estratégico', 0)" :key="p.id" class="p-2.5 bg-gray-900 rounded-lg border border-gray-800 flex justify-between items-center">
+                                <span><strong class="text-blue-400 font-mono">{{p.codigo}}:</strong> {{p.nombre}}</span>
+                                <button @click="abrirEdicion(p)" class="text-gray-500 hover:text-white"><i class="fa-solid fa-pen-to-square"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Misioneros / Operativos -->
+                    <div class="bg-emerald-950/10 border border-emerald-500/20 p-4 rounded-xl">
+                        <h4 class="text-xs font-black text-emerald-400 uppercase tracking-widest mb-2 text-center">Procesos Operativos / Misionales</h4>
+                        <div class="space-y-3">
+                            <div v-for="p in filtrarProcesos('Misional', 0)" :key="p.id" class="p-3 bg-gray-900 rounded-xl border border-emerald-500/30 shadow-inner flex justify-between items-center">
+                                <div>
+                                    <span class="text-xs uppercase tracking-wider bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded font-bold font-mono">{{p.codigo}}</span>
+                                    <span class="ml-2 font-bold text-white text-sm">{{p.nombre}}</span>
+                                </div>
+                                <span class="text-xs text-gray-400 italic">Macroproceso Core</span>
+                            </div>
+                            
+                            <!-- Nivel 1 Desplegable Específico del Alumno -->
+                            <div class="p-4 bg-gray-950 border border-gray-800 rounded-xl">
+                                <div class="flex justify-between items-center mb-4">
+                                    <div>
+                                        <h5 class="text-xs font-bold text-gray-300 uppercase">Sublíneas del Macroproceso PM.1 - Trayectoria y Progresión</h5>
+                                        <p class="text-[10px] text-gray-500 mt-1">Ordenado según la estructura CEPLAN y la distribución del equipo.</p>
+                                    </div>
+                                </div>
+                                <div class="space-y-3">
+                                    <div v-for="n1 in filtrarProcesos('Misional', 1)" :key="n1.id" class="bg-gray-900 rounded-lg p-3 border border-gray-800">
+                                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-3">
+                                            <div>
+                                                <p class="text-xs font-bold text-emerald-400"><i class="fa-solid fa-folder-open"></i> Nivel 1: {{n1.codigo}} - {{n1.nombre}}</p>
+                                                <p class="text-[10px] text-gray-500 mt-1">Responsable: <span class="text-gray-300 font-semibold">{{n1.responsable || 'Responsable por asignar'}}</span></p>
+                                            </div>
+                                            <div class="flex gap-2">
+                                                <span v-if="n1.codigo === 'PM.1.2'" class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold px-2 py-1 rounded">Tu sublínea</span>
+                                                <button @click="formProceso.tipo='Misional'; formProceso.nivel=2; formProceso.id_padre=n1.id;" class="bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-gray-950 text-xs font-bold px-3 py-1.5 rounded-lg border border-emerald-500/30 transition-all">
+                                                    <i class="fa-solid fa-plus"></i> Nivel 2
+                                                </button>
+                                                <button @click="abrirEdicion(n1)" class="bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-bold px-3 py-1.5 rounded-lg border border-gray-700 transition-all">
+                                                    <i class="fa-solid fa-user-pen"></i> Responsable
+                                                </button>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Grid de Subprocesos Nivel 2 -->
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pl-2">
+                                            <div v-for="n2 in buscarHijos(n1.id)" :key="n2.id" @click="subprocesoActivo = n2" :class="subprocesoActivo?.id === n2.id ? 'border-emerald-400 bg-gray-850' : 'border-gray-800 bg-gray-950 hover:bg-gray-900'" class="p-3 border rounded-xl cursor-pointer transition-all shadow-md">
+                                                <div class="flex justify-between items-center">
+                                                    <span class="text-xs font-bold text-white font-mono bg-gray-800 px-2 py-0.5 rounded border border-gray-700">{{n2.codigo}}</span>
+                                                    <div class="flex gap-2">
+                                                        <button @click.stop="abrirEdicion(n2)" class="text-gray-500 hover:text-emerald-400 text-xs"><i class="fa-solid fa-pencil"></i></button>
+                                                        <button @click.stop="eliminarProceso(n2.id)" class="text-gray-500 hover:text-red-400 text-xs"><i class="fa-solid fa-trash"></i></button>
+                                                    </div>
+                                                </div>
+                                                <p class="text-xs font-bold mt-2 text-gray-200">{{n2.nombre}}</p>
+                                                <p class="text-[10px] text-gray-500 mt-1 italic">Entregable: {{n2.producto || 'No definido'}}</p>
+
+                                                <!-- Actividades Hijas Nivel 3 -->
+                                                <div class="mt-2 pt-2 border-t border-gray-800/60 space-y-1">
+                                                    <div v-for="n3 in buscarHijos(n2.id)" :key="n3.id" class="text-[10px] text-gray-400 flex justify-between items-center bg-gray-900/60 p-1 px-2 rounded">
+                                                        <span><strong class="font-mono text-emerald-500">{{n3.codigo}}:</strong> {{n3.nombre}}</span>
+                                                        <button @click.stop="eliminarProceso(n3.id)" class="text-gray-600 hover:text-red-400"><i class="fa-solid fa-times"></i></button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Soporte -->
+                    <div class="bg-amber-950/10 border border-amber-500/20 p-4 rounded-xl">
+                        <h4 class="text-xs font-black text-amber-400 uppercase tracking-widest mb-2 text-center">Procesos de Soporte / Apoyo</h4>
+                        <div class="grid grid-cols-2 md:grid-cols-6 gap-2 text-[10px]">
+                            <div v-for="p in filtrarProcesos('Apoyo', 0)" :key="p.id" class="p-2 bg-gray-900 rounded-lg border border-gray-800 text-center">
+                                <span class="block font-mono text-amber-400 font-bold">{{p.codigo}}</span>
+                                <span class="text-gray-400 font-medium">{{p.nombre}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Columna Derecha: Clientes -->
+                <div class="col-span-12 lg:col-span-2 bg-pink-950/20 border border-pink-500/20 rounded-xl p-4 flex flex-col justify-center text-center">
+                    <h3 class="text-xs font-black uppercase text-pink-400 mb-3 tracking-widest"><i class="fa-solid fa-users-viewfinder"></i> Clientes</h3>
+                    <div class="space-y-2 text-xs font-medium text-gray-400">
+                        <div class="p-2 bg-gray-950 rounded-lg border border-gray-800">Docentes Públicos</div>
+                        <div class="p-2 bg-gray-950 rounded-lg border border-gray-800">Estudiantes</div>
+                        <div class="p-2 bg-gray-950 rounded-lg border border-gray-800">Instituciones / Sociedad</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- PESTAÑA 2: INVENTARIO DE PROCESOS (DATATABLE + CRUD) -->
+        <!-- =================================================================== -->
+        <div v-if="currentTab === 'inventario'" class="space-y-6">
+            <!-- Formulario de Registro Rápido -->
+            <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl">
+                <h3 class="text-sm font-black uppercase text-emerald-400 mb-4 tracking-wider"><i class="fa-solid fa-square-plus"></i> Registrar o Modificar Proceso</h3>
+                <form @submit.prevent="guardarProceso" class="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
+                    <div class="flex flex-col gap-1">
+                        <label class="text-gray-400 font-medium">Código Único</label>
+                        <input type="text" v-model="formProceso.codigo" placeholder="Ej: PM.1.2.6" class="p-2.5 rounded-lg bg-gray-950 border border-gray-800 focus:border-emerald-500 focus:outline-none" required>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label class="text-gray-400 font-medium">Nombre del Elemento</label>
+                        <input type="text" v-model="formProceso.nombre" placeholder="Nombre descriptivo" class="p-2.5 rounded-lg bg-gray-950 border border-gray-800 focus:border-emerald-500 focus:outline-none" required>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label class="text-gray-400 font-medium">Clasificación de Tipo</label>
+                        <select v-model="formProceso.tipo" class="p-2.5 rounded-lg bg-gray-950 border border-gray-800 focus:border-emerald-500 focus:outline-none">
+                            <option value="Estratégico">Estratégico</option>
+                            <option value="Misional">Misional</option>
+                            <option value="Apoyo">Apoyo</option>
+                        </select>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label class="text-gray-400 font-medium">Nivel Operativo</label>
+                        <select v-model.number="formProceso.nivel" class="p-2.5 rounded-lg bg-gray-950 border border-gray-800 focus:border-emerald-500 focus:outline-none">
+                            <option :value="0">Nivel 0 (Macroproceso)</option>
+                            <option :value="1">Nivel 1 (Proceso)</option>
+                            <option :value="2">Nivel 2 (Subproceso)</option>
+                            <option :value="3">Nivel 3 (Actividad)</option>
+                        </select>
+                    </div>
+                    <div class="flex flex-col gap-1 md:col-span-2">
+                        <label class="text-gray-400 font-medium">Producto Final / Entregable</label>
+                        <input type="text" v-model="formProceso.producto" placeholder="Resultado tangible del proceso" class="p-2.5 rounded-lg bg-gray-950 border border-gray-800 focus:border-emerald-500 focus:outline-none">
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label class="text-gray-400 font-medium">Responsable</label>
+                        <input type="text" v-model="formProceso.responsable" placeholder="Nombre del estudiante responsable" class="p-2.5 rounded-lg bg-gray-950 border border-gray-800 focus:border-emerald-500 focus:outline-none">
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label class="text-gray-400 font-medium">Dependencia Jerárquica (Padre)</label>
+                        <select v-model="formProceso.id_padre" class="p-2.5 rounded-lg bg-gray-950 border border-gray-800 focus:border-emerald-500 focus:outline-none">
+                            <option :value="null">Ninguno (Raíz)</option>
+                            <option v-for="p in listaProcesos" :key="p.id" :value="p.id">{{p.codigo}} - {{p.nombre}}</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-gray-950 font-black p-2.5 rounded-lg transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-floppy-disk"></i> Guardar Registro
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Tabla General de Gestión Organizacional -->
+            <div class="bg-gray-900 border border-gray-800 rounded-2xl shadow-xl overflow-hidden">
+                <div class="p-4 bg-gray-850 border-b border-gray-800 flex justify-between items-center">
+                    <h3 class="text-xs font-black text-gray-300 uppercase tracking-wider">Inventario Consolidado de la Organización</h3>
+                    <span class="text-xs font-mono px-2.5 py-1 bg-gray-950 rounded border border-gray-800 text-emerald-400">{{listaProcesos.length}} Elementos Cargados</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-950 text-gray-400 text-[11px] uppercase tracking-wider border-b border-gray-800">
+                                <th class="p-4 font-semibold">Código</th>
+                                <th class="p-4 font-semibold">Nombre del Proceso</th>
+                                <th class="p-4 font-semibold">Clasificación</th>
+                                <th class="p-4 font-semibold">Líder Línea</th>
+                                <th class="p-4 font-semibold">Estado</th>
+                                <th class="p-4 font-semibold">Ver.</th>
+                                <th class="p-4 font-semibold">Auditoría</th>
+                                <th class="p-4 font-semibold text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-xs divide-y divide-gray-800/60">
+                            <tr v-for="p in listaProcesos" :key="p.id" class="hover:bg-gray-850/40 transition-all">
+                                <td class="p-4 font-mono font-bold text-emerald-400">{{p.codigo}}</td>
+                                <td class="p-4">
+                                    <p class="font-bold text-gray-200">{{p.nombre}}</p>
+                                    <p class="text-[10px] text-gray-500 mt-0.5">Entregable: {{p.producto || 'Ninguno'}}</p>
+                                </td>
+                                <td class="p-4">
+                                    <span :class="p.tipo === 'Estratégico' ? 'bg-blue-500/10 text-blue-400' : p.tipo === 'Misional' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400'" class="px-2 py-0.5 rounded text-[10px] font-bold">
+                                        {{p.tipo}} (N{{p.nivel}})
+                                    </span>
+                                </td>
+                                <td class="p-4 text-gray-400 font-medium">{{p.responsable}}</td>
+                                <td class="p-4">
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-500/10 text-green-400">
+                                        <span class="w-1.5 h-1.5 bg-green-400 rounded-full"></span> {{p.estado}}
+                                    </span>
+                                </td>
+                                <td class="p-4 font-mono text-gray-400">{{p.version}}</td>
+                                <td class="p-4 font-mono text-[10px] text-gray-500">{{p.actualizado_en}}</td>
+                                <td class="p-4">
+                                    <div class="flex gap-2 justify-center">
+                                        <button @click="abrirEdicion(p)" class="p-1.5 bg-gray-950 border border-gray-800 rounded text-gray-400 hover:text-emerald-400" title="Editar"><i class="fa-solid fa-edit"></i></button>
+                                        <button @click="eliminarProceso(p.id)" class="p-1.5 bg-gray-950 border border-gray-800 rounded text-gray-400 hover:text-red-400" title="Eliminar"><i class="fa-solid fa-trash-can"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- PESTAÑA 3: INVENTARIO DE INDICADORES DE NIVEL 2 -->
+        <!-- =================================================================== -->
+        <div v-if="currentTab === 'indicadores'" class="space-y-6">
+            <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl">
+                <h3 class="text-sm font-black uppercase text-emerald-400 mb-4 tracking-wider"><i class="fa-solid fa-chart-line"></i> Estructurar Nuevo Indicador Operativo (Nivel 2)</h3>
+                
+                <form @submit.prevent="guardarIndicador" class="space-y-4 text-xs">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="flex flex-col gap-1">
+                            <label class="text-gray-400 font-medium">Asociar al Subproceso Nivel 2</label>
+                            <select v-model="formIndicador.id_proceso" class="p-2.5 rounded-lg bg-gray-950 border border-gray-800 focus:border-emerald-500 focus:outline-none" required>
+                                <option v-for="p in filtrarProcesos('Misional', 2)" :key="p.id" :value="p.id">{{p.codigo}} - {{p.nombre}}</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-gray-400 font-medium">Nombre Completo del Indicador</label>
+                            <input type="text" v-model="formIndicador.nombre" placeholder="Porcentaje de..." class="p-2.5 rounded-lg bg-gray-950 border border-gray-800 focus:border-emerald-500 focus:outline-none" required>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-gray-400 font-medium">Grado de Relevancia (CEPLAN Criterio 2)</label>
+                            <select v-model.number="formIndicador.relevancia" class="p-2.5 rounded-lg bg-gray-950 border border-gray-800 focus:border-emerald-500 focus:outline-none">
+                                <option :value="1">Grado 1 - Prioridad Alta (Crítico)</option>
+                                <option :value="2">Grado 2 - Prioridad Media</option>
+                                <option :value="3">Grado 3 - Prioridad Baja</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label class="text-gray-400 font-medium">Sustento / Justificación Operativa</label>
+                        <textarea v-model="formIndicador.justificacion" rows="2" placeholder="Sustento técnico institucional..." class="p-2.5 rounded-lg bg-gray-950 border border-gray-800 focus:border-emerald-500 focus:outline-none" required></textarea>
+                    </div>
+
+                    <!-- Configuración Semestral (Enero - Junio) -->
+                    <div class="bg-gray-950/80 p-4 rounded-xl border border-gray-800">
+                        <h4 class="text-xs font-black uppercase text-gray-300 mb-3 tracking-wider">Carga Semestral de Línea de Base y Metas</h4>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+                            <div v-for="(m, idx) in formIndicador.mediciones" :key="m.mes" class="p-2 bg-gray-900 border border-gray-800 rounded-lg space-y-2">
+                                <p class="text-center font-bold text-gray-400 border-b border-gray-800 pb-1 text-[11px]">{{m.mes}}</p>
+                                <div>
+                                    <label class="text-[9px] text-gray-500 block">VO (%)</label>
+                                    <input type="number" step="0.1" v-model.number="m.vo" class="w-full p-1 bg-gray-950 border border-gray-800 text-xs rounded text-center text-emerald-400 focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="text-[9px] text-gray-500 block">LE (%)</label>
+                                    <input type="number" step="0.1" v-model.number="m.le" class="w-full p-1 bg-gray-950 border border-gray-800 text-xs rounded text-center text-blue-400 focus:outline-none">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button type="submit" class="bg-emerald-500 hover:bg-emerald-600 text-gray-950 font-black px-6 py-2.5 rounded-lg transition-all flex items-center gap-2 shadow-md">
+                            <i class="fa-solid fa-circle-check"></i> Enlazar Indicador Institucional
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Lista de Indicadores Registrados -->
+            <div class="bg-gray-900 border border-gray-800 rounded-2xl p-4 shadow-xl">
+                <h3 class="text-xs font-black uppercase text-gray-300 mb-3 tracking-wider">Mapeo Mensual de Metas Semestrales</h3>
+                <div class="space-y-4">
+                    <div v-for="ind in listaIndicadores" :key="ind.id" class="p-4 bg-gray-950 border border-gray-800 rounded-xl">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 border-b border-gray-800 pb-2 mb-3">
+                            <div>
+                                <span class="bg-emerald-500/10 text-emerald-400 text-[10px] font-mono font-bold px-2 py-0.5 rounded border border-emerald-500/20">{{ind.codigo_proceso}}</span>
+                                <h4 class="text-xs font-bold text-white inline-block ml-2">{{ind.nombre}}</h4>
+                            </div>
+                            <span class="text-[10px] bg-yellow-500/10 text-yellow-500 font-bold px-2 py-0.5 rounded border border-yellow-500/20">Relevancia R_k: {{ind.relevancia}}</span>
+                        </div>
+                        <p class="text-[11px] text-gray-400 mb-3 italic"><strong class="text-gray-300 font-medium">Justificación:</strong> {{ind.justificacion}}</p>
+                        
+                        <!-- Mini visualizador editable de la curva mensual del indicador -->
+                        <div v-if="indicadorEditandoId !== ind.id" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-2 text-center text-[10px]">
+                            <div v-for="med in ind.historial" :key="med.mes" class="bg-gray-900 p-2 rounded border border-gray-800/50">
+                                <span class="block font-bold text-gray-500 mb-1">{{med.mes}}</span>
+                                <div class="flex justify-center gap-3 font-mono">
+                                    <span class="text-emerald-400" title="Valor Obtenido">VO: {{med.vo}}%</span>
+                                    <span class="text-blue-400" title="Logro Esperado">LE: {{med.le}}%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+                            <div v-for="med in medicionesEditables" :key="med.mes" class="bg-gray-900 p-3 rounded border border-emerald-500/20">
+                                <span class="block font-black text-gray-300 mb-2 text-[11px] uppercase">{{med.mes}}</span>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <label class="text-[10px] text-gray-400">
+                                        <span class="block mb-1">VO (%)</span>
+                                        <input type="number" min="0" step="0.1" v-model.number="med.vo" class="w-full p-2 bg-gray-950 border border-gray-800 text-xs rounded text-center text-emerald-400 focus:outline-none">
+                                    </label>
+                                    <label class="text-[10px] text-gray-400">
+                                        <span class="block mb-1">LE (%)</span>
+                                        <input type="number" min="0" step="0.1" v-model.number="med.le" class="w-full p-2 bg-gray-950 border border-gray-800 text-xs rounded text-center text-blue-400 focus:outline-none">
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end gap-2 mt-4">
+                            <template v-if="indicadorEditandoId === ind.id">
+                                <button @click="cancelarEdicionMediciones" type="button" class="bg-gray-800 hover:bg-gray-700 text-gray-200 font-bold px-4 py-2 rounded-lg transition-all flex items-center gap-2">
+                                    <i class="fa-solid fa-xmark"></i> Cancelar
+                                </button>
+                                <button @click="guardarMediciones(ind)" type="button" class="bg-emerald-500 hover:bg-emerald-600 text-gray-950 font-black px-4 py-2 rounded-lg transition-all flex items-center gap-2">
+                                    <i class="fa-solid fa-floppy-disk"></i> Guardar Metas
+                                </button>
+                            </template>
+                            <button v-else @click="iniciarEdicionMediciones(ind)" type="button" class="bg-blue-500 hover:bg-blue-600 text-white font-bold px-4 py-2 rounded-lg transition-all flex items-center gap-2">
+                                <i class="fa-solid fa-pen-to-square"></i> Editar VO / LE
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- PESTAÑA 4: MATRIZ DE RELEVANCIA Y PONDERACIÓN -->
+        <!-- =================================================================== -->
+        <div v-if="currentTab === 'relevancia'" class="space-y-6">
+            <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl">
+                <div class="mb-4">
+                    <h3 class="text-base font-black text-white uppercase tracking-tight">Matriz de Inversión de Escala (Metodología Oficial CEPLAN)</h3>
+                    <p class="text-xs text-gray-400 mt-1">Algoritmo matemático que pondera el nivel estratégico invirtiendo el valor asignado por el criterio institucional.</p>
+                </div>
+
+                <div class="bg-gray-950 p-4 rounded-xl border border-gray-800 mb-6 text-xs text-gray-400 space-y-2">
+                    <p class="font-bold text-emerald-400 uppercase tracking-wider text-[11px]"><i class="fa-solid fa-calculator"></i> Reglas de Negocio Implementadas:</p>
+                    <p>• La fórmula legal para la inversión del vector de ponderaciones es: <code class="text-blue-400 bg-gray-900 px-1.5 py-0.5 rounded font-mono">Valor Inverso = R_max + R_min - R_k</code></p>
+                    <p>• Dónde <code class="text-gray-300 font-mono">R_max = 3</code> (Prioridad Baja) y <code class="text-gray-300 font-mono">R_min = 1</code> (Prioridad Alta).</p>
+                    <p>• La ponderación porcentual final <code class="text-purple-400 font-mono">P</code> se normaliza dividiendo cada valor inverso entre la sumatoria total de los mismos.</p>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-950 text-gray-400 text-xs uppercase tracking-wider border-b border-gray-800">
+                                <th class="p-4">Código Proceso</th>
+                                <th class="p-4">Indicador de Nivel 2</th>
+                                <th class="p-4 text-center">Grado Asignado ($R_k$)</th>
+                                <th class="p-4 text-center text-blue-400">Valor Inverso Calculado</th>
+                                <th class="p-4 text-center text-purple-400">Ponderación Decimal ($P$)</th>
+                                <th class="p-4 text-center">Peso Porcentual</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-xs divide-y divide-gray-800" v-if="analiticaCeplan">
+                            <tr v-for="ind in analiticaCeplan.indicadores" :key="ind.id" class="hover:bg-gray-850/50">
+                                <td class="p-4 font-mono font-bold text-emerald-400">{{ind.codigo}}</td>
+                                <td class="p-4 font-medium text-gray-200">{{ind.nombre}}</td>
+                                <td class="p-4 text-center text-yellow-400 font-bold font-mono">{{ind.relevancia}}</td>
+                                <td class="p-4 text-center text-blue-400 font-bold font-mono">{{ind.valorInverso}}</td>
+                                <td class="p-4 text-center text-purple-400 font-bold font-mono">{{ind.ponderacion}}</td>
+                                <td class="p-4 text-center">
+                                    <span class="bg-purple-500/10 text-purple-400 px-2.5 py-1 rounded font-bold">
+                                        {{(ind.ponderacion * 100).toFixed(2)}}%
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr class="bg-gray-950 font-black text-sm border-t-2 border-emerald-500">
+                                <td class="p-4 text-emerald-400" colspan="2">VECTOR DE CONTROL CONSOLIDADO</td>
+                                <td class="p-4"></td>
+                                <td class="p-4"></td>
+                                <td class="p-4 text-center text-purple-400 font-mono">1.0000</td>
+                                <td class="p-4 text-center text-purple-400">100.00%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- PESTAÑA 5: CÁLCULO DE RATIOS DE CUMPLIMIENTO (AVANCE TIPO I Y TIPO II) -->
+        <!-- =================================================================== -->
+        <div v-if="currentTab === 'avance'" class="space-y-6">
+            <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl">
+                <div class="mb-4">
+                    <h3 class="text-base font-black text-white uppercase tracking-tight">Resultados de Ratios de Cumplimiento Institucional Semestral</h3>
+                    <p class="text-xs text-gray-400 mt-1">Evaluación matemática final comparando la Línea de Base (Enero) frente al cierre semestral (Junio).</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div class="bg-emerald-950/10 border border-emerald-500/20 p-4 rounded-xl text-xs">
+                        <span class="font-bold text-emerald-400 block mb-1 uppercase tracking-wider">Avance Tipo I (Semestral de Meta)</span>
+                        <p class="text-gray-400">Mide la eficacia directa alcanzada respecto a lo esperado en el mes de evaluación.</p>
+                        <p class="mt-2 font-mono text-gray-300 bg-gray-950 p-2 rounded text-center">Av(T1) = (VO_Junio / LE_Junio) * 100</p>
+                    </div>
+                    <div class="bg-cyan-950/10 border border-cyan-500/20 p-4 rounded-xl text-xs">
+                        <span class="font-bold text-cyan-400 block mb-1 uppercase tracking-wider">Avance Tipo II (No Agregable con Línea de Base)</span>
+                        <p class="text-gray-400">Mide la velocidad del cambio real, aislando la inercia histórica registrada en Enero.</p>
+                        <p class="mt-2 font-mono text-gray-300 bg-gray-950 p-2 rounded text-center">Av(T2) = ((VO_Junio - LB) / (LE_Junio - LB)) * 100</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6 text-xs">
+                    <div class="bg-emerald-950/20 border border-emerald-500/30 p-4 rounded-xl">
+                        <p class="font-black text-emerald-400 uppercase flex items-center gap-2"><i class="fa-solid fa-circle-check"></i> Verde - Adecuado</p>
+                        <p class="text-gray-400 mt-1">Avance igual o mayor a 95%. La meta se encuentra controlada.</p>
+                    </div>
+                    <div class="bg-amber-950/20 border border-amber-500/30 p-4 rounded-xl">
+                        <p class="font-black text-amber-400 uppercase flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation"></i> Amarillo - Por mejorar</p>
+                        <p class="text-gray-400 mt-1">Avance entre 75% y 94.99%. Requiere seguimiento y acciones correctivas.</p>
+                    </div>
+                    <div class="bg-red-950/20 border border-red-500/30 p-4 rounded-xl">
+                        <p class="font-black text-red-400 uppercase flex items-center gap-2"><i class="fa-solid fa-circle-xmark"></i> Rojo - Crítico</p>
+                        <p class="text-gray-400 mt-1">Avance menor a 75%. Requiere intervención prioritaria.</p>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-950 text-gray-400 text-xs uppercase tracking-wider border-b border-gray-800">
+                                <th class="p-4">Código</th>
+                                <th class="p-4">Indicador Evaluado</th>
+                                <th class="p-4 text-center">LB (Ene)</th>
+                                <th class="p-4 text-center">VO (Jun)</th>
+                                <th class="p-4 text-center">LE (Jun)</th>
+                                <th class="p-4 text-center text-purple-400">Peso ($P$)</th>
+                                <th class="p-4 text-center text-emerald-400">Avance Tipo I</th>
+                                <th class="p-4 text-center text-cyan-400">Avance Tipo II</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-xs divide-y divide-gray-800" v-if="analiticaCeplan">
+                            <tr v-for="ind in analiticaCeplan.indicadores" :key="ind.id" class="hover:bg-gray-850/50">
+                                <td class="p-4 font-mono font-bold text-emerald-400">{{ind.codigo}}</td>
+                                <td class="p-4 text-gray-300 font-medium">{{ind.nombre}}</td>
+                                <td class="p-4 text-center font-mono text-gray-400">{{ind.lb}}%</td>
+                                <td class="p-4 text-center font-mono text-gray-200 font-bold">{{ind.vo_jun}}%</td>
+                                <td class="p-4 text-center font-mono text-gray-400">{{ind.le_jun}}%</td>
+                                <td class="p-4 text-center font-mono text-purple-400 font-semibold">{{ind.ponderacion}}</td>
+                                <td class="p-4 text-center">
+                                    <div :class="semaforoCellClass(ind.avanceTipo1)">
+                                        <div class="flex items-center justify-center gap-2">
+                                            <i :class="semaforoIcon(ind.avanceTipo1)"></i>
+                                            <span class="font-mono font-black">{{ind.avanceTipo1}}%</span>
+                                        </div>
+                                        <span class="block text-[10px] uppercase mt-1">{{semaforoLabel(ind.avanceTipo1)}}</span>
+                                    </div>
+                                </td>
+                                <td class="p-4 text-center">
+                                    <div :class="semaforoCellClass(ind.avanceTipo2)">
+                                        <div class="flex items-center justify-center gap-2">
+                                            <i :class="semaforoIcon(ind.avanceTipo2)"></i>
+                                            <span class="font-mono font-black">{{ind.avanceTipo2}}%</span>
+                                        </div>
+                                        <span class="block text-[10px] uppercase mt-1">{{semaforoLabel(ind.avanceTipo2)}}</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            
+                            <!-- Fila de Resultados Agregados Finales -->
+                            <tr class="bg-gray-950 border-t-4 border-emerald-500 font-black text-sm">
+                                <td class="p-5 text-emerald-400 text-xs uppercase tracking-widest" colspan="2">Índice Total Consolidado Ponderado</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td class="p-5 text-center text-purple-400 font-mono">1.0000</td>
+                                <td class="p-5 text-center">
+                                    <div :class="semaforoCellClass(analiticaCeplan.totales_consolidados.avance_tipo1_total, true)">
+                                        <div class="flex items-center justify-center gap-2 text-xl">
+                                            <i :class="semaforoIcon(analiticaCeplan.totales_consolidados.avance_tipo1_total)"></i>
+                                            <span class="font-mono">{{analiticaCeplan.totales_consolidados.avance_tipo1_total}}%</span>
+                                        </div>
+                                        <span class="block text-[10px] uppercase mt-1">{{semaforoLabel(analiticaCeplan.totales_consolidados.avance_tipo1_total)}}</span>
+                                    </div>
+                                </td>
+                                <td class="p-5 text-center">
+                                    <div :class="semaforoCellClass(analiticaCeplan.totales_consolidados.avance_tipo2_total, true)">
+                                        <div class="flex items-center justify-center gap-2 text-xl">
+                                            <i :class="semaforoIcon(analiticaCeplan.totales_consolidados.avance_tipo2_total)"></i>
+                                            <span class="font-mono">{{analiticaCeplan.totales_consolidados.avance_tipo2_total}}%</span>
+                                        </div>
+                                        <span class="block text-[10px] uppercase mt-1">{{semaforoLabel(analiticaCeplan.totales_consolidados.avance_tipo2_total)}}</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- PESTAÑA 6: GRÁFICOS ESTADÍSTICOS Y DASHBOARD DE CONTROL ANALÍTICO -->
+        <!-- =================================================================== -->
+        <div v-if="currentTab === 'graficos'" class="space-y-6">
+            <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl">
+                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
+                    <div>
+                        <h3 class="text-base font-black text-white uppercase tracking-tight">Dashboard Analítico de Control</h3>
+                        <p class="text-xs text-gray-400 mt-1">Visualización mensual del desempeño de los subprocesos core y comparación CEPLAN semestral.</p>
+                    </div>
+                    <div class="w-full lg:w-80">
+                        <label class="text-xs text-gray-400 font-medium">Subproceso Nivel 2</label>
+                        <select v-model="subprocesoDashboardId" class="w-full mt-1 p-2.5 rounded-lg bg-gray-950 border border-gray-800 focus:border-emerald-500 focus:outline-none">
+                            <option v-for="p in filtrarProcesos('Misional', 2)" :key="p.id" :value="p.id">{{p.codigo}} - {{p.nombre}}</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-emerald-950/20 border border-emerald-500/20 rounded-xl p-4">
+                        <p class="text-[11px] uppercase text-emerald-400 font-bold">Subproceso activo</p>
+                        <p class="text-sm font-black text-white mt-1">{{ subprocesoDashboard()?.codigo || 'Sin selección' }}</p>
+                        <p class="text-xs text-gray-400 mt-1">{{ subprocesoDashboard()?.nombre || 'Seleccione un subproceso' }}</p>
+                    </div>
+                    <div class="bg-blue-950/20 border border-blue-500/20 rounded-xl p-4">
+                        <p class="text-[11px] uppercase text-blue-400 font-bold">Indicador Core</p>
+                        <p class="text-sm font-black text-white mt-1">{{ indicadorDashboard()?.nombre || 'Sin indicador' }}</p>
+                    </div>
+                    <div class="bg-purple-950/20 border border-purple-500/20 rounded-xl p-4">
+                        <p class="text-[11px] uppercase text-purple-400 font-bold">Relevancia CEPLAN</p>
+                        <p class="text-sm font-black text-white mt-1">{{ indicadorDashboard()?.relevancia ?? '—' }}</p>
+                        <p class="text-xs text-gray-400 mt-1">Nivel de prioridad del indicador en el modelo institucional.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                    <div class="bg-gray-950 border border-gray-800 rounded-2xl p-4">
+                        <div class="mb-3">
+                            <p class="text-[11px] uppercase font-bold text-emerald-400">Curva de aprendizaje mensual</p>
+                            <p class="text-xs text-gray-400">Comparación mes a mes entre VO real y LE planificado.</p>
+                        </div>
+                        <div class="h-80">
+                            <canvas id="lineChartDashboard"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-gray-950 border border-gray-800 rounded-2xl p-4">
+                        <div class="mb-3">
+                            <p class="text-[11px] uppercase font-bold text-cyan-400">Ratios CEPLAN consolidados</p>
+                            <p class="text-xs text-gray-400">Comparativo Tipo I y Tipo II para los 3 indicadores core seleccionados.</p>
+                        </div>
+                        <div class="h-80">
+                            <canvas id="barChartDashboard"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- PESTAÑA 7: CARACTERIZACIÓN SIPOC -->
+        <!-- =================================================================== -->
+        <div v-if="currentTab === 'sipoc'" class="space-y-6">
+            <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl">
+                <div class="mb-6">
+                    <h2 class="text-lg font-black text-white">📊 CARACTERIZACIÓN SIPOC</h2>
+                    <p class="text-sm text-gray-400 mt-2">Modelo de descripción de proveedores, entradas, proceso, salidas y clientes para cada subproceso.</p>
+                </div>
+
+                <!-- Selector de Proceso -->
+                <div class="bg-gray-950 border border-gray-800 rounded-xl p-4 mb-6">
+                    <label class="block text-sm font-bold text-white mb-2">Seleccionar Proceso</label>
+                    <select v-model="procesoSIPOCSeleccionado" @change="cargarDataSIPOC" class="w-full p-2.5 rounded-lg bg-gray-950 border border-gray-800 focus:border-emerald-500 focus:outline-none text-white">
+                        <option value="">-- Seleccione un proceso --</option>
+                        <optgroup label="Nivel 1">
+                            <option v-for="p in filtrarProcesos('Misional', 1)" :key="p.id" :value="p.id">{{p.codigo}} - {{p.nombre}}</option>
+                        </optgroup>
+                        <optgroup label="Nivel 2">
+                            <option v-for="p in filtrarProcesos('Misional', 2)" :key="p.id" :value="p.id">{{p.codigo}} - {{p.nombre}}</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <!-- Grid SIPOC 5 Columnas -->
+                <div v-if="dataSIPOCActual" class="bg-gray-950 border border-gray-800 rounded-2xl overflow-hidden mb-6">
+                    <div class="grid grid-cols-1 xl:grid-cols-5 bg-gradient-to-r from-emerald-900/20 to-cyan-900/20 border-b border-gray-800">
+                        <div class="p-4 border-r border-gray-800 bg-emerald-950/30">
+                            <p class="text-xs font-bold uppercase text-emerald-400">Proveedores</p>
+                        </div>
+                        <div class="p-4 border-r border-gray-800 bg-blue-950/30">
+                            <p class="text-xs font-bold uppercase text-blue-400">Entradas</p>
+                        </div>
+                        <div class="p-4 border-r border-gray-800 bg-purple-950/30">
+                            <p class="text-xs font-bold uppercase text-purple-400">Proceso</p>
+                        </div>
+                        <div class="p-4 border-r border-gray-800 bg-orange-950/30">
+                            <p class="text-xs font-bold uppercase text-orange-400">Salidas</p>
+                        </div>
+                        <div class="p-4 bg-cyan-950/30">
+                            <p class="text-xs font-bold uppercase text-cyan-400">Clientes</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Data Cells -->
+                    <div class="grid grid-cols-1 xl:grid-cols-5">
+                        <div class="p-4 border-r border-b border-gray-800">
+                            <textarea v-model="dataSIPOCActual.proveedores" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-2 text-sm text-gray-200 focus:border-emerald-500 focus:outline-none" rows="6" placeholder="Especificar proveedores internos/externos..."></textarea>
+                        </div>
+                        <div class="p-4 border-r border-b border-gray-800">
+                            <textarea v-model="dataSIPOCActual.entradas" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-2 text-sm text-gray-200 focus:border-emerald-500 focus:outline-none" rows="6" placeholder="Documentos, información, insumos..."></textarea>
+                        </div>
+                        <div class="p-4 border-r border-b border-gray-800">
+                            <textarea v-model="dataSIPOCActual.nombre" disabled class="w-full bg-gray-800 border border-gray-700 rounded-lg p-2 text-sm text-gray-300" rows="6" placeholder="Nombre del proceso"></textarea>
+                        </div>
+                        <div class="p-4 border-r border-b border-gray-800">
+                            <textarea v-model="dataSIPOCActual.salidas" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-2 text-sm text-gray-200 focus:border-emerald-500 focus:outline-none" rows="6" placeholder="Productos, servicios, resultados..."></textarea>
+                        </div>
+                        <div class="p-4 border-b border-gray-800">
+                            <textarea v-model="dataSIPOCActual.clientes" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-2 text-sm text-gray-200 focus:border-emerald-500 focus:outline-none" rows="6" placeholder="Usuarios internos/externos..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ficha CEPLAN de Control del Proceso -->
+                <div v-if="dataSIPOCActual" class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+                    <div class="lg:col-span-2 bg-gray-950 border border-gray-800 rounded-xl p-5">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-5">
+                            <div>
+                                <p class="text-[11px] uppercase text-emerald-400 font-black">Ficha de caracterización del proceso</p>
+                                <h3 class="text-lg font-black text-white mt-1">{{ dataSIPOCActual.codigo }} - {{ dataSIPOCActual.nombre }}</h3>
+                                <p class="text-xs text-gray-400 mt-1">Estructura de control para gestión por procesos: propósito, responsable, producto, usuarios e indicador de desempeño.</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[10px] uppercase text-gray-500 font-bold">Completitud SIPOC</p>
+                                <p :class="sipocScore(dataSIPOCActual) >= 80 ? 'text-emerald-400' : sipocScore(dataSIPOCActual) >= 50 ? 'text-amber-400' : 'text-red-400'" class="text-2xl font-black">{{ sipocScore(dataSIPOCActual) }}%</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                            <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
+                                <p class="text-gray-500 uppercase font-bold">Producto o servicio del proceso</p>
+                                <p class="text-white font-black mt-1">{{ dataSIPOCActual.producto || 'No definido' }}</p>
+                            </div>
+                            <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
+                                <p class="text-gray-500 uppercase font-bold">Proceso padre</p>
+                                <p class="text-white font-black mt-1">{{ procesoPadreActual()?.codigo || '—' }} {{ procesoPadreActual()?.nombre || '' }}</p>
+                            </div>
+                            <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
+                                <p class="text-gray-500 uppercase font-bold">Indicador asociado</p>
+                                <p class="text-white font-black mt-1">{{ indicadorProcesoActual()?.nombre || 'Sin indicador asociado' }}</p>
+                                <p class="text-gray-400 mt-2">{{ indicadorProcesoActual()?.justificacion || 'Cree o vincule un indicador para cerrar la trazabilidad CEPLAN.' }}</p>
+                            </div>
+                            <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
+                                <p class="text-gray-500 uppercase font-bold">Estado de avance</p>
+                                <div v-if="analiticaProcesoActual()" :class="semaforoCellClass(analiticaProcesoActual().avanceTipo1, true)" class="mt-2">
+                                    <div class="flex items-center gap-2">
+                                        <i :class="semaforoIcon(analiticaProcesoActual().avanceTipo1)"></i>
+                                        <span>Avance Tipo I: {{ analiticaProcesoActual().avanceTipo1 }}%</span>
+                                    </div>
+                                    <span class="block text-[10px] uppercase mt-1">{{ semaforoLabel(analiticaProcesoActual().avanceTipo1) }}</span>
+                                </div>
+                                <p v-else class="text-gray-400 mt-2">Sin medición analítica para este proceso.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-950 border border-gray-800 rounded-xl p-5">
+                        <p class="text-[11px] uppercase text-amber-400 font-black mb-3">Checklist CEPLAN de calidad</p>
+                        <div class="space-y-2 text-xs">
+                            <div v-for="item in sipocChecklist(dataSIPOCActual)" :key="item.label" class="flex items-center justify-between gap-3 bg-gray-900 border border-gray-800 rounded-lg px-3 py-2">
+                                <span class="text-gray-300">{{ item.label }}</span>
+                                <i :class="item.ok ? 'fa-solid fa-circle-check text-emerald-400' : 'fa-solid fa-circle-xmark text-red-400'"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4 bg-amber-500/10 border border-amber-500/20 rounded-lg p-3">
+                            <p class="text-[11px] text-amber-300 font-bold uppercase">Criterio de revisión</p>
+                            <p class="text-xs text-gray-400 mt-1">La caracterización debe permitir identificar quién entrega insumos, qué se transforma, qué producto se obtiene, quién lo recibe y cómo se mide.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Metadatos de Control -->
+                <div v-if="dataSIPOCActual" class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-emerald-950/20 border border-emerald-500/20 rounded-xl p-4">
+                        <p class="text-[11px] uppercase text-emerald-400 font-bold">Código</p>
+                        <p class="text-sm font-black text-white mt-1">{{ dataSIPOCActual.codigo || '—' }}</p>
+                    </div>
+                    <div class="bg-blue-950/20 border border-blue-500/20 rounded-xl p-4">
+                        <p class="text-[11px] uppercase text-blue-400 font-bold">Responsable</p>
+                        <p class="text-sm font-black text-white mt-1">{{ dataSIPOCActual.responsable || '—' }}</p>
+                    </div>
+                    <div class="bg-purple-950/20 border border-purple-500/20 rounded-xl p-4">
+                        <p class="text-[11px] uppercase text-purple-400 font-bold">Versión</p>
+                        <p class="text-sm font-black text-white mt-1">{{ dataSIPOCActual.version || '1.0' }}</p>
+                    </div>
+                    <div class="bg-orange-950/20 border border-orange-500/20 rounded-xl p-4">
+                        <p class="text-[11px] uppercase text-orange-400 font-bold">Indicador Core</p>
+                        <p class="text-sm font-black text-white mt-1">{{ indicadorProcesoActual()?.nombre || 'Sin indicador' }}</p>
+                    </div>
+                </div>
+
+                <!-- Botones de Acción -->
+                <div v-if="dataSIPOCActual" class="flex gap-3">
+                    <button @click="guardarSIPOC" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-6 py-2.5 rounded-lg transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-floppy-disk"></i> Guardar Cambios
+                    </button>
+                    <button @click="procesoSIPOCSeleccionado = ''; dataSIPOCActual = null" class="bg-gray-700 hover:bg-gray-600 text-white font-bold px-6 py-2.5 rounded-lg transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-xmark"></i> Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const { createApp, ref, onMounted, watch } = Vue;
+
+        let lineChartInstance = null;
+        let barChartInstance = null;
+
+        createApp({
+            setup() {
+                const currentTab = ref('mapa');
+                const listaProcesos = ref([]);
+                const listaIndicadores = ref([]);
+                const analiticaCeplan = ref(null);
+                const subprocesoActivo = ref(null);
+                const subprocesoDashboardId = ref(null);
+                const indicadorEditandoId = ref(null);
+                const medicionesEditables = ref([]);
+                const mesesSemestre = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio'];
+
+                // Estructuras de formularios en blanco (Modelos reactivos)
+                const formProceso = ref({ id: null, codigo: '', nombre: '', tipo: 'Misional', nivel: 2, responsable: '', producto: '', id_padre: null });
+                const formIndicador = ref({
+                    id_proceso: '', nombre: '', justificacion: '', relevancia: 1,
+                    mediciones: [
+                        { mes: 'Enero', vo: 0, le: 0 }, { mes: 'Febrero', vo: 0, le: 0 },
+                        { mes: 'Marzo', vo: 0, le: 0 }, { mes: 'Abril', vo: 0, le: 0 },
+                        { mes: 'Mayo', vo: 0, le: 0 }, { mes: 'Junio', vo: 0, le: 0 }
+                    ]
+                });
+
+                // Referencias para SIPOC
+                const procesoSIPOCSeleccionado = ref('');
+                const dataSIPOCActual = ref(null);
+
+                const syncDashboardSelection = () => {
+                    const opciones = listaProcesos.value.filter(p => p.tipo === 'Misional' && p.nivel === 2);
+                    if (!opciones.length) {
+                        subprocesoDashboardId.value = null;
+                        return;
+                    }
+                    if (!opciones.some(p => p.id === subprocesoDashboardId.value)) {
+                        subprocesoDashboardId.value = opciones[0].id;
+                    }
+                };
+
+                const subprocesoDashboard = () => {
+                    return listaProcesos.value.find(p => p.id === subprocesoDashboardId.value) || null;
+                };
+
+                const indicadorDashboard = () => {
+                    return listaIndicadores.value.find(ind => ind.id_proceso === subprocesoDashboardId.value) || null;
+                };
+
+                const semaforoEstado = (valor) => {
+                    const avance = Number(valor || 0);
+                    if (avance >= 95) return 'verde';
+                    if (avance >= 75) return 'amarillo';
+                    return 'rojo';
+                };
+
+                const semaforoLabel = (valor) => {
+                    const estado = semaforoEstado(valor);
+                    if (estado === 'verde') return 'Adecuado';
+                    if (estado === 'amarillo') return 'Por mejorar';
+                    return 'Crítico';
+                };
+
+                const semaforoIcon = (valor) => {
+                    const estado = semaforoEstado(valor);
+                    if (estado === 'verde') return 'fa-solid fa-circle-check';
+                    if (estado === 'amarillo') return 'fa-solid fa-triangle-exclamation';
+                    return 'fa-solid fa-circle-xmark';
+                };
+
+                const semaforoCellClass = (valor, destacado = false) => {
+                    const base = destacado
+                        ? 'rounded-lg px-4 py-3 border font-black '
+                        : 'rounded-lg px-3 py-2 border font-bold ';
+                    const estado = semaforoEstado(valor);
+
+                    if (estado === 'verde') {
+                        return base + 'bg-emerald-500/12 border-emerald-500/40 text-emerald-300';
+                    }
+                    if (estado === 'amarillo') {
+                        return base + 'bg-amber-500/12 border-amber-500/45 text-amber-300';
+                    }
+                    return base + 'bg-red-500/12 border-red-500/45 text-red-300';
+                };
+
+                const ordenarPorCodigo = (items = []) => {
+                    return [...items].sort((a, b) => {
+                        const partesA = String(a.codigo || '').match(/\d+|[A-Za-z]+/g) || [];
+                        const partesB = String(b.codigo || '').match(/\d+|[A-Za-z]+/g) || [];
+                        const max = Math.max(partesA.length, partesB.length);
+
+                        for (let i = 0; i < max; i++) {
+                            const aParte = partesA[i] || '';
+                            const bParte = partesB[i] || '';
+                            const aNumero = Number(aParte);
+                            const bNumero = Number(bParte);
+                            const ambosNumeros = !Number.isNaN(aNumero) && !Number.isNaN(bNumero);
+
+                            if (ambosNumeros && aNumero !== bNumero) return aNumero - bNumero;
+                            if (!ambosNumeros && aParte !== bParte) return aParte.localeCompare(bParte);
+                        }
+
+                        return 0;
+                    });
+                };
+
+                const renderDashboardCharts = () => {
+                    if (currentTab.value !== 'graficos' || typeof window === 'undefined' || typeof Chart === 'undefined') {
+                        return;
+                    }
+
+                    const lineCanvas = document.getElementById('lineChartDashboard');
+                    const barCanvas = document.getElementById('barChartDashboard');
+                    if (!lineCanvas || !barCanvas) {
+                        return;
+                    }
+
+                    if (lineChartInstance) lineChartInstance.destroy();
+                    if (barChartInstance) barChartInstance.destroy();
+
+                    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio'];
+                    const indicadorSeleccionado = listaIndicadores.value.find(ind => ind.id_proceso === subprocesoDashboardId.value) || null;
+                    const historial = indicadorSeleccionado?.historial || [];
+
+                    const voData = meses.map(mes => {
+                        const item = historial.find(h => h.mes === mes);
+                        return item ? Number(item.vo || 0) : 0;
+                    });
+                    const leData = meses.map(mes => {
+                        const item = historial.find(h => h.mes === mes);
+                        return item ? Number(item.le || 0) : 0;
+                    });
+
+                    lineChartInstance = new Chart(lineCanvas.getContext('2d'), {
+                        type: 'line',
+                        data: {
+                            labels: meses,
+                            datasets: [
+                                {
+                                    label: 'Valor Obtenido (VO)',
+                                    data: voData,
+                                    borderColor: '#10b981',
+                                    backgroundColor: 'rgba(16, 185, 129, 0.18)',
+                                    tension: 0.35,
+                                    fill: true,
+                                    pointRadius: 4,
+                                    pointBackgroundColor: '#10b981'
+                                },
+                                {
+                                    label: 'Logro Esperado (LE)',
+                                    data: leData,
+                                    borderColor: '#38bdf8',
+                                    backgroundColor: 'rgba(56, 189, 248, 0.16)',
+                                    tension: 0.35,
+                                    fill: false,
+                                    pointRadius: 4,
+                                    pointBackgroundColor: '#38bdf8'
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { labels: { color: '#e5e7eb' } } },
+                            scales: {
+                                x: { ticks: { color: '#9ca3af' } },
+                                y: { ticks: { color: '#9ca3af' }, beginAtZero: true, max: 110 }
+                            }
+                        }
+                    });
+
+                    const indicadoresCore = (analiticaCeplan.value?.indicadores || [])
+                        .filter(ind => ['PM.1.2.2', 'PM.1.2.3', 'PM.1.2.4'].includes(ind.codigo));
+
+                    barChartInstance = new Chart(barCanvas.getContext('2d'), {
+                        type: 'bar',
+                        data: {
+                            labels: indicadoresCore.map(ind => ind.codigo),
+                            datasets: [
+                                {
+                                    label: 'Avance Tipo I',
+                                    data: indicadoresCore.map(ind => Number(ind.avanceTipo1 || 0)),
+                                    backgroundColor: '#10b981',
+                                    borderRadius: 6
+                                },
+                                {
+                                    label: 'Avance Tipo II',
+                                    data: indicadoresCore.map(ind => Number(ind.avanceTipo2 || 0)),
+                                    backgroundColor: '#38bdf8',
+                                    borderRadius: 6
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { labels: { color: '#e5e7eb' } } },
+                            scales: {
+                                x: { ticks: { color: '#9ca3af' } },
+                                y: { ticks: { color: '#9ca3af' }, beginAtZero: true, max: 110 }
+                            }
+                        }
+                    });
+                };
+
+                // --- LLAMADOS ASÍNCRONOS A LA API BACKEND ---
+                const cargarTodo = async () => {
+                    try {
+                        // Cargar procesos
+                        const resP = await fetch('http://localhost:5000/api/procesos');
+                        if (!resP.ok) throw new Error(`Error HTTP: ${resP.status}`);
+                        const procesos = await resP.json();
+                        listaProcesos.value = ordenarPorCodigo(procesos || []);
+                        console.log(`✅ Procesos cargados: ${listaProcesos.value.length} elementos`);
+
+                        // Cargar indicadores
+                        const resI = await fetch('http://localhost:5000/api/indicadores');
+                        if (!resI.ok) throw new Error(`Error HTTP: ${resI.status}`);
+                        const inds = await resI.json();
+                        
+                        // Cargar el mapeo mensual para cada indicador en la UI
+                        for(let ind of inds) {
+                            const resM = await fetch(`http://localhost:5000/api/mediciones/${ind.id}`);
+                            if (resM.ok) {
+                                ind.historial = await resM.json();
+                            }
+                        }
+                        listaIndicadores.value = inds || [];
+                        console.log(`✅ Indicadores cargados: ${listaIndicadores.value.length} elementos`);
+
+                        // Cargar analítica CEPLAN
+                        const resA = await fetch('http://localhost:5000/api/analitica/ceplan');
+                        if (resA.ok) {
+                            analiticaCeplan.value = await resA.json();
+                            console.log(`✅ Analítica CEPLAN cargada`);
+                        }
+
+                        syncDashboardSelection();
+                    } catch (error) {
+                        console.error("❌ Error de conexión con el backend local:", error);
+                        alert("Error al conectar con el servidor. Asegúrate de que está ejecutando en http://localhost:5000");
+                    }
+                };
+
+                // --- MÉTODOS CONTROLADORES DE PROCESOS (CRUD) ---
+                const filtrarProcesos = (tipo, nivel) => {
+                    return ordenarPorCodigo(listaProcesos.value.filter(p => p.tipo === tipo && p.nivel === nivel));
+                };
+
+                const buscarHijos = (idPadre) => {
+                    return ordenarPorCodigo(listaProcesos.value.filter(p => p.id_padre === idPadre));
+                };
+
+                const guardarProceso = async () => {
+                    // Validación básica
+                    if (!formProceso.value.codigo.trim() || !formProceso.value.nombre.trim()) {
+                        alert("El código y nombre del proceso son obligatorios");
+                        return;
+                    }
+
+                    const esEdicion = formProceso.value.id !== null;
+                    const url = esEdicion ? `http://localhost:5000/api/procesos/${formProceso.value.id}` : 'http://localhost:5000/api/procesos';
+                    const method = esEdicion ? 'PUT' : 'POST';
+
+                    try {
+                        const res = await fetch(url, {
+                            method: method,
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(formProceso.value)
+                        });
+                        if (res.ok) {
+                            console.log(`✅ Proceso ${esEdicion ? 'actualizado' : 'guardado'} correctamente`);
+                            formProceso.value = { id: null, codigo: '', nombre: '', tipo: 'Misional', nivel: 2, responsable: '', producto: '', id_padre: null };
+                            await cargarTodo();
+                            alert(`¡Proceso ${esEdicion ? 'actualizado' : 'creado'} exitosamente!`);
+                        } else {
+                            const error = await res.json();
+                            alert(`Error al guardar: ${error.error || error.message}`);
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        alert("Error al guardar el proceso. Verifica que el servidor esté corriendo.");
+                    }
+                };
+
+                const abrirEdicion = (proceso) => {
+                    formProceso.value = { ...proceso };
+                    currentTab.value = 'inventario';
+                };
+
+                const eliminarProceso = async (id) => {
+                    if (confirm("¿Confirmar la eliminación física del proceso? Se borrarán sus elementos hijos en cascada.")) {
+                        try {
+                            await fetch(`http://localhost:5000/api/procesos/${id}`, { method: 'DELETE' });
+                            await cargarTodo();
+                        } catch (err) {
+                            console.error(err);
+                        }
+                    }
+                };
+
+                // --- MÉTODOS DE CONTROLADORES DE INDICADORES ---
+                const guardarIndicador = async () => {
+                    try {
+                        const res = await fetch('http://localhost:5000/api/indicadores', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(formIndicador.value)
+                        });
+                        if (res.ok) {
+                            formIndicador.value = {
+                                id_proceso: '', nombre: '', justificacion: '', relevancia: 1,
+                                mediciones: [
+                                    { mes: 'Enero', vo: 0, le: 0 }, { mes: 'Febrero', vo: 0, le: 0 },
+                                    { mes: 'Marzo', vo: 0, le: 0 }, { mes: 'Abril', vo: 0, le: 0 },
+                                    { mes: 'Mayo', vo: 0, le: 0 }, { mes: 'Junio', vo: 0, le: 0 }
+                                ]
+                            };
+                            await cargarTodo();
+                            alert("¡Indicador enlazado y cargado en el motor CEPLAN!");
+                        }
+                    } catch (err) {
+                        console.error(err);
+                    }
+                };
+
+                // --- MÉTODO DE REGENERACIÓN DE SEMILLA ---
+                const normalizarMediciones = (historial = []) => {
+                    return mesesSemestre.map(mes => {
+                        const medicion = historial.find(item => item.mes === mes) || {};
+                        return {
+                            mes,
+                            vo: Number(medicion.vo || 0),
+                            le: Number(medicion.le || 0)
+                        };
+                    });
+                };
+
+                const iniciarEdicionMediciones = (indicador) => {
+                    indicadorEditandoId.value = indicador.id;
+                    medicionesEditables.value = normalizarMediciones(indicador.historial).map(m => ({ ...m }));
+                };
+
+                const cancelarEdicionMediciones = () => {
+                    indicadorEditandoId.value = null;
+                    medicionesEditables.value = [];
+                };
+
+                const guardarMediciones = async (indicador) => {
+                    const medicionesInvalidas = medicionesEditables.value.some(m =>
+                        m.vo === null || m.le === null ||
+                        Number.isNaN(Number(m.vo)) ||
+                        Number.isNaN(Number(m.le)) ||
+                        Number(m.vo) < 0 ||
+                        Number(m.le) < 0
+                    );
+
+                    if (medicionesInvalidas) {
+                        alert("Verifica las metas mensuales: VO y LE deben ser números mayores o iguales a cero.");
+                        return;
+                    }
+
+                    try {
+                        const res = await fetch(`http://localhost:5000/api/mediciones/${indicador.id}`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ mediciones: medicionesEditables.value })
+                        });
+
+                        if (res.ok) {
+                            cancelarEdicionMediciones();
+                            await cargarTodo();
+                            alert("Metas semestrales actualizadas correctamente.");
+                        } else {
+                            const error = await res.json();
+                            alert(`Error al actualizar metas: ${error.error || error.message}`);
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        alert("Error de conexión al actualizar las metas semestrales.");
+                    }
+                };
+
+                const regenerarSemilla = async () => {
+                    if (!confirm("⚠️ Esto borrará todos los procesos e indicadores y regenerará los datos de demostración. ¿Estás seguro?")) {
+                        return;
+                    }
+                    try {
+                        const res = await fetch('http://localhost:5000/api/seed/reset', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' }
+                        });
+                        if (res.ok) {
+                            console.log("✅ Semilla regenerada");
+                            await cargarTodo();
+                            alert("✅ Datos de demostración regenerados exitosamente. Actualiza la página si no ves los cambios.");
+                        } else {
+                            alert("Error al regenerar la semilla");
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        alert("Error de conexión al regenerar la semilla");
+                    }
+                };
+
+                // --- MÉTODOS PARA CARACTERIZACIÓN SIPOC ---
+                const cargarDataSIPOC = async () => {
+                    if (!procesoSIPOCSeleccionado.value) {
+                        dataSIPOCActual.value = null;
+                        return;
+                    }
+                    const proceso = listaProcesos.value.find(p => p.id === parseInt(procesoSIPOCSeleccionado.value));
+                    if (proceso) {
+                        dataSIPOCActual.value = {
+                            id: proceso.id,
+                            codigo: proceso.codigo,
+                            nombre: proceso.nombre,
+                            tipo: proceso.tipo,
+                            nivel: proceso.nivel,
+                            responsable: proceso.responsable,
+                            estado: proceso.estado || 'Activo',
+                            version: proceso.version || '1.0',
+                            producto: proceso.producto || '',
+                            id_padre: proceso.id_padre || null,
+                            proveedores: proceso.proveedores || '',
+                            entradas: proceso.entradas || '',
+                            salidas: proceso.salidas || '',
+                            clientes: proceso.clientes || ''
+                        };
+                    }
+                };
+
+                const indicadorProcesoActual = () => {
+                    if (!dataSIPOCActual.value) return null;
+                    return listaIndicadores.value.find(ind => ind.id_proceso === dataSIPOCActual.value.id) || null;
+                };
+
+                const procesoPadreActual = () => {
+                    if (!dataSIPOCActual.value?.id_padre) return null;
+                    return listaProcesos.value.find(p => p.id === dataSIPOCActual.value.id_padre) || null;
+                };
+
+                const analiticaProcesoActual = () => {
+                    if (!dataSIPOCActual.value) return null;
+                    return (analiticaCeplan.value?.indicadores || [])
+                        .find(ind => ind.codigo === dataSIPOCActual.value.codigo) || null;
+                };
+
+                const tieneContenido = (valor) => {
+                    return String(valor || '').trim().length >= 4;
+                };
+
+                const sipocChecklist = (proceso) => {
+                    if (!proceso) return [];
+                    return [
+                        { label: 'Proveedores identificados', ok: tieneContenido(proceso.proveedores) },
+                        { label: 'Entradas documentadas', ok: tieneContenido(proceso.entradas) },
+                        { label: 'Producto o servicio definido', ok: tieneContenido(proceso.producto) },
+                        { label: 'Salidas verificables', ok: tieneContenido(proceso.salidas) },
+                        { label: 'Clientes o usuarios definidos', ok: tieneContenido(proceso.clientes) },
+                        { label: 'Responsable asignado', ok: tieneContenido(proceso.responsable) },
+                        { label: 'Indicador enlazado', ok: !!indicadorProcesoActual() }
+                    ];
+                };
+
+                const sipocScore = (proceso) => {
+                    const items = sipocChecklist(proceso);
+                    if (!items.length) return 0;
+                    const completos = items.filter(item => item.ok).length;
+                    return Math.round((completos / items.length) * 100);
+                };
+
+                const guardarSIPOC = async () => {
+                    if (!dataSIPOCActual.value || !dataSIPOCActual.value.id) {
+                        alert("Error: Proceso no seleccionado");
+                        return;
+                    }
+                    try {
+                        const res = await fetch(`http://localhost:5000/api/procesos/${dataSIPOCActual.value.id}`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                codigo: dataSIPOCActual.value.codigo,
+                                nombre: dataSIPOCActual.value.nombre,
+                                tipo: dataSIPOCActual.value.tipo,
+                                nivel: dataSIPOCActual.value.nivel,
+                                responsable: dataSIPOCActual.value.responsable,
+                                estado: dataSIPOCActual.value.estado,
+                                version: dataSIPOCActual.value.version,
+                                producto: dataSIPOCActual.value.producto,
+                                id_padre: dataSIPOCActual.value.id_padre,
+                                proveedores: dataSIPOCActual.value.proveedores,
+                                entradas: dataSIPOCActual.value.entradas,
+                                salidas: dataSIPOCActual.value.salidas,
+                                clientes: dataSIPOCActual.value.clientes
+                            })
+                        });
+                        if (res.ok) {
+                            console.log("✅ SIPOC guardado correctamente");
+                            await cargarTodo();
+                            alert("✅ Caracterización SIPOC guardada exitosamente");
+                        } else {
+                            const error = await res.json();
+                            alert(`Error: ${error.error || error.message}`);
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        alert("Error al guardar la caracterización SIPOC");
+                    }
+                };
+
+                watch([currentTab, listaIndicadores, analiticaCeplan, subprocesoDashboardId], () => {
+                    if (currentTab.value === 'graficos') {
+                        window.requestAnimationFrame(() => renderDashboardCharts());
+                    }
+                }, { deep: true });
+
+                onMounted(async () => {
+                    await cargarTodo();
+                    window.setInterval(() => {
+                        if (document.visibilityState === 'visible') {
+                            cargarTodo().catch(console.error);
+                        }
+                    }, 15000);
+                });
+
+                return {
+                    currentTab, listaProcesos, listaIndicadores, analiticaCeplan, subprocesoActivo, subprocesoDashboardId,
+                    subprocesoDashboard, indicadorDashboard, semaforoLabel, semaforoIcon, semaforoCellClass,
+                    indicadorEditandoId, medicionesEditables,
+                    formProceso, formIndicador, cargarTodo, regenerarSemilla, filtrarProcesos, buscarHijos, guardarProceso,
+                    abrirEdicion, eliminarProceso, guardarIndicador, iniciarEdicionMediciones, cancelarEdicionMediciones, guardarMediciones,
+                    procesoSIPOCSeleccionado, dataSIPOCActual, cargarDataSIPOC, guardarSIPOC, indicadorProcesoActual,
+                    procesoPadreActual, analiticaProcesoActual, sipocChecklist, sipocScore
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
