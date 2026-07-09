@@ -1308,20 +1308,20 @@ Soporta CRUD Visual, Mapas de Procesos de Nivel 0-3 e Indicadores en Caliente
                 const cargarTodo = async () => {
                     try {
                         // Cargar procesos
-                        const resP = await fetch('http://localhost:5000/api/procesos');
+                        const resP = await fetch('/api/procesos');
                         if (!resP.ok) throw new Error(`Error HTTP: ${resP.status}`);
                         const procesos = await resP.json();
                         listaProcesos.value = ordenarPorCodigo(procesos || []);
                         console.log(`✅ Procesos cargados: ${listaProcesos.value.length} elementos`);
 
                         // Cargar indicadores
-                        const resI = await fetch('http://localhost:5000/api/indicadores');
+                        const resI = await fetch('/api/indicadores');
                         if (!resI.ok) throw new Error(`Error HTTP: ${resI.status}`);
                         const inds = await resI.json();
                         
                         // Cargar el mapeo mensual para cada indicador en la UI
                         for(let ind of inds) {
-                            const resM = await fetch(`http://localhost:5000/api/mediciones/${ind.id}`);
+                            const resM = await fetch(`/api/mediciones/${ind.id}`);
                             if (resM.ok) {
                                 ind.historial = await resM.json();
                             }
@@ -1330,7 +1330,7 @@ Soporta CRUD Visual, Mapas de Procesos de Nivel 0-3 e Indicadores en Caliente
                         console.log(`✅ Indicadores cargados: ${listaIndicadores.value.length} elementos`);
 
                         // Cargar analítica CEPLAN
-                        const resA = await fetch('http://localhost:5000/api/analitica/ceplan');
+                        const resA = await fetch('/api/analitica/ceplan');
                         if (resA.ok) {
                             analiticaCeplan.value = await resA.json();
                             console.log(`✅ Analítica CEPLAN cargada`);
@@ -1339,7 +1339,7 @@ Soporta CRUD Visual, Mapas de Procesos de Nivel 0-3 e Indicadores en Caliente
                         syncDashboardSelection();
                     } catch (error) {
                         console.error("❌ Error de conexión con el backend local:", error);
-                        alert("Error al conectar con el servidor. Asegúrate de que está ejecutando en http://localhost:5000");
+                        alert("Error al conectar con el servidor. Asegúrate de que la aplicación esté desplegada con Node/Express activo");
                     }
                 };
 
@@ -1360,7 +1360,7 @@ Soporta CRUD Visual, Mapas de Procesos de Nivel 0-3 e Indicadores en Caliente
                     }
 
                     const esEdicion = formProceso.value.id !== null;
-                    const url = esEdicion ? `http://localhost:5000/api/procesos/${formProceso.value.id}` : 'http://localhost:5000/api/procesos';
+                    const url = esEdicion ? `/api/procesos/${formProceso.value.id}` : '/api/procesos';
                     const method = esEdicion ? 'PUT' : 'POST';
 
                     try {
@@ -1392,7 +1392,7 @@ Soporta CRUD Visual, Mapas de Procesos de Nivel 0-3 e Indicadores en Caliente
                 const eliminarProceso = async (id) => {
                     if (confirm("¿Confirmar la eliminación física del proceso? Se borrarán sus elementos hijos en cascada.")) {
                         try {
-                            await fetch(`http://localhost:5000/api/procesos/${id}`, { method: 'DELETE' });
+                            await fetch(`/api/procesos/${id}`, { method: 'DELETE' });
                             await cargarTodo();
                         } catch (err) {
                             console.error(err);
@@ -1403,7 +1403,7 @@ Soporta CRUD Visual, Mapas de Procesos de Nivel 0-3 e Indicadores en Caliente
                 // --- MÉTODOS DE CONTROLADORES DE INDICADORES ---
                 const guardarIndicador = async () => {
                     try {
-                        const res = await fetch('http://localhost:5000/api/indicadores', {
+                        const res = await fetch('/api/indicadores', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(formIndicador.value)
@@ -1462,7 +1462,7 @@ Soporta CRUD Visual, Mapas de Procesos de Nivel 0-3 e Indicadores en Caliente
                     }
 
                     try {
-                        const res = await fetch(`http://localhost:5000/api/mediciones/${indicador.id}`, {
+                        const res = await fetch(`/api/mediciones/${indicador.id}`, {
                             method: 'PUT',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ mediciones: medicionesEditables.value })
@@ -1487,7 +1487,7 @@ Soporta CRUD Visual, Mapas de Procesos de Nivel 0-3 e Indicadores en Caliente
                         return;
                     }
                     try {
-                        const res = await fetch('http://localhost:5000/api/seed/reset', {
+                        const res = await fetch('/api/seed/reset', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' }
                         });
@@ -1577,7 +1577,7 @@ Soporta CRUD Visual, Mapas de Procesos de Nivel 0-3 e Indicadores en Caliente
                         return;
                     }
                     try {
-                        const res = await fetch(`http://localhost:5000/api/procesos/${dataSIPOCActual.value.id}`, {
+                        const res = await fetch(`/api/procesos/${dataSIPOCActual.value.id}`, {
                             method: 'PUT',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
