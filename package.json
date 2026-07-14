@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node backend/server.js",
     "check": "node --check backend/server.js",
-    "check:frontend": "node -e \"const fs=require('fs'); const html=fs.readFileSync('frontend/index.html','utf8'); const start=html.lastIndexOf('<script>'); const end=html.lastIndexOf('</script>'); new Function(html.slice(start+8,end)); console.log('frontend script syntax ok');\"",
+    "check:frontend": "node --check frontend/app.js",
     "test": "npm run check && npm run check:frontend"
   },
   "keywords": [],

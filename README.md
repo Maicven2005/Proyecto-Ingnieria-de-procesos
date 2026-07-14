@@ -36,7 +36,9 @@ PM.1.2 Evaluación del desempeño
 │   ├── database.sql
 │   └── scripts/
 ├── frontend/
-│   └── index.html
+│   ├── index.html
+│   ├── styles.css
+│   └── app.js
 ├── package.json
 ├── package-lock.json
 └── README.md
