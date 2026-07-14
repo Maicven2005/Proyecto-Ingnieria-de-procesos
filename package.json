@@ -4,8 +4,10 @@
   "description": "",
   "main": "backend/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node backend/server.js"
+    "start": "node backend/server.js",
+    "check": "node --check backend/server.js",
+    "check:frontend": "node -e \"const fs=require('fs'); const html=fs.readFileSync('frontend/index.html','utf8'); const start=html.lastIndexOf('<script>'); const end=html.lastIndexOf('</script>'); new Function(html.slice(start+8,end)); console.log('frontend script syntax ok');\"",
+    "test": "npm run check && npm run check:frontend"
   },
   "keywords": [],
   "author": "",

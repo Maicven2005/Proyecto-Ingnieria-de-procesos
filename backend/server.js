@@ -19,7 +19,14 @@ function connectDB() {
                 reject(err);
             } else {
                 console.log('💾 Conexión exitosa a la base de datos [procesos_ceplan.db].');
-                resolve();
+                db.run('PRAGMA foreign_keys = ON', (pragmaErr) => {
+                    if (pragmaErr) {
+                        console.error('Error activando claves foraneas en SQLite:', pragmaErr.message);
+                        reject(pragmaErr);
+                        return;
+                    }
+                    resolve();
+                });
             }
         });
     });
@@ -205,6 +212,18 @@ async function initializeDatabase() {
 // ============================================================================
 // ENDPOINTS DE LA API REST (CRUD COMPLETO)
 // ============================================================================
+
+app.get('/api/health', (req, res) => {
+    db.get('SELECT COUNT(*) as procesos FROM procesos', [], (err, row) => {
+        if (err) return res.status(500).json({ ok: false, error: err.message });
+        res.json({
+            ok: true,
+            database: 'procesos_ceplan.db',
+            procesos: row?.procesos || 0,
+            timestamp: new Date().toISOString()
+        });
+    });
+});
 
 // --- CRUD PROCESOS ---
 app.get('/api/procesos', (req, res) => {
