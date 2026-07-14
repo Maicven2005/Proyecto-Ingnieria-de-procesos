@@ -9,7 +9,6 @@ let db = null;
 
 app.use(express.json());
 app.use(cors());
-app.use(express.static(__dirname));
 
 // Conectar a la base de datos (sin bloquear)
 function connectDB() {
@@ -558,7 +557,7 @@ app.post('/api/seed/reset', async (req, res) => {
 });
 
 // Inicialización de la Escucha de Red Local
-const PORT = process.env.PORT || 5000;
+const PORT = 5000;
 app.listen(PORT, async () => {
     console.log(`🚀 API de Ingeniería de Procesos UNHEVAL arriba en http://localhost:${PORT}`);
     try {
