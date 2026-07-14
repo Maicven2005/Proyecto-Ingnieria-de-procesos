@@ -1,5 +1,6 @@
 const sqlite3 = require('sqlite3').verbose();
-const db = new sqlite3.Database('procesos_ceplan.db');
+const path = require('path');
+const db = new sqlite3.Database(path.join(__dirname, '..', 'procesos_ceplan.db'));
 
 db.serialize(() => {
   db.run("UPDATE procesos SET proveedores = ?, entradas = ?, salidas = ?, clientes = ? WHERE codigo = ?", ['Dirección Regional de Educación','Docentes del padrón','Comité registrado','Docentes evaluados','PM.1.2.2'], function(err){ if(err) console.error(err); });
